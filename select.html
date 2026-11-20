@@ -91,7 +91,7 @@ async function src(path){ // private repo with token, demo files otherwise
 async function init(){
   if(DEMO){$('#notice').style.display='block';$('#notice').innerHTML='Демо-режим: ключ доступа не введён, данные взяты из пробного прогона. Галочки работают, а «Опубликовать» только покажет, что было бы отправлено. Чтобы публиковать по-настоящему, войдите на главной странице дашборда через «Вход для редактора».'}
   RUNS=(await src('candidates/index.json'))||[];
-  $('#run').innerHTML=RUNS.map(r=>`<option value="${r.file}">${fmt(r.issue)} (${esc(r.period)})${r.published?' — опубликован':''}</option>`).join('');
+  $('#run').innerHTML=RUNS.map(r=>`<option value="${r.file}">${fmt(r.issue)} (${esc(r.period)})${r.trial?' — пробный':''}${r.published?' — опубликован':''}</option>`).join('');
   $('#run').onchange=()=>loadRun($('#run').value);
   DELETED=(await src('deleted.json'))||[];
   if(RUNS.length)await loadRun(RUNS[0].file);else render();
@@ -134,6 +134,7 @@ function toast(t,ms=4000){const e=$('#toast');e.textContent=t;e.style.display='b
 function toReg(c){const {num,shortlist,recommended,selected,summary,flags,full_text,also,...r}=c;return {...r,issue:RUN.issue,period:RUN.period,status:'published',body:r.body||summary||'',images:(c.images||[]).map(p=>'data/img/'+p.split('/').pop())}}
 $('#pubBtn').onclick=async()=>{
   const chosen=CAND.filter(c=>sel.has(c.id));
+  if(RUN.trial){toast('Это пробный прогон: его новости уже есть в выпуске 19.11 из «Барометра», поэтому публикация отключена. Галочки можно ставить для проверки.',7000);return}
   if(!confirm(`Опубликовать в дашборде ${chosen.length} новостей выпуска ${fmt(RUN.issue)}?\nНовости этого выпуска, с которых снята галочка, из дашборда уберутся.`))return;
   if(DEMO){console.log('Будет опубликовано:',chosen.map(toReg));toast(`Демо: было бы опубликовано ${chosen.length} новостей (номера ${chosen.map(c=>c.num).join(', ')}).`,6000);return}
   try{
