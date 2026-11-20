@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Барометр рынка — активность конкурентов</title>
+<style>
+:root{--blue:#006DF0;--blue-d:#0052B4;--blue-l:#E6F0FE;--ink:#14181F;--ink2:#4A5260;--muted:#7A828F;--line:#E3E7EE;--bg:#F4F6F9;--card:#fff;--red:#C62828}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.45}
+a{color:var(--blue)}
+header{background:var(--blue);color:#fff;padding:18px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header h1{margin:0;font-size:22px;font-weight:700}
+header .sub{opacity:.85;font-size:13px}
+header .sp{flex:1}
+header .hbtn{color:#fff;border:1px solid rgba(255,255,255,.6);border-radius:8px;padding:7px 12px;text-decoration:none;font-size:13px;background:transparent;cursor:pointer}
+header .hbtn:hover{background:rgba(255,255,255,.12)}
+main{max-width:1320px;margin:0 auto;padding:20px 28px 60px}
+.filters{background:var(--card);border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.f{display:flex;flex-direction:column;gap:4px;min-width:150px}
+.f label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.f select,.f input{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-height:34px}
+.f.grow{flex:1;min-width:200px}
+.ms{position:relative}
+.ms>button{font:inherit;width:100%;text-align:left;padding:7px 28px 7px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;min-height:34px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.ms>button:after{content:"▾";position:absolute;right:10px;top:8px;color:var(--muted)}
+.ms .dd{display:none;position:absolute;z-index:20;top:38px;left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px;max-height:320px;overflow:auto;min-width:240px}
+.ms.open .dd{display:block}
+.ms .dd label{display:flex;gap:8px;align-items:center;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:13px;text-transform:none;color:var(--ink);letter-spacing:0}
+.ms .dd label:hover{background:var(--bg)}
+.ms .dd .cnt{margin-left:auto;color:var(--muted);font-size:12px}
+.reset{font:inherit;border:0;background:none;color:var(--blue);cursor:pointer;padding:8px 4px}
+.blocks{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font:inherit;color:var(--ink2)}
+.chip b{color:var(--ink);margin-left:6px}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip.on b{color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--card);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.panel h3{margin:0 0 8px;font-size:14px}
+.panel .hint{font-size:12px;color:var(--muted);margin:-4px 0 6px}
+svg text{font-family:Arial,Helvetica,sans-serif}
+.tip{position:fixed;pointer-events:none;background:#14181F;color:#fff;padding:6px 9px;border-radius:6px;font-size:12px;display:none;z-index:50;white-space:nowrap}
+.toolbar{display:flex;align-items:center;gap:12px;margin:18px 0 8px;flex-wrap:wrap}
+.toolbar .count{font-size:15px;font-weight:700}
+.toolbar .sp{flex:1}
+.btn{font:inherit;border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn:hover{background:var(--blue-l)}
+.btn.pri{background:var(--blue);color:#fff}
+.issue{margin-top:22px}
+.issue>h2{font-size:17px;margin:0 0 10px;display:flex;gap:10px;align-items:baseline}
+.issue>h2 span{font-size:13px;color:var(--muted);font-weight:400}
+.bh{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--blue);font-weight:700;margin:14px 0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px}
+.card{background:var(--card);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:8px;border:1px solid transparent}
+.card:hover{border-color:var(--line)}
+.card .top{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--ink2)}
+.tag.co{background:var(--blue-l);color:var(--blue-d);font-weight:700}
+.tag.mark{background:#FFF4E5;color:#8A4B00}
+.card h4{margin:0;font-size:15px;line-height:1.3}
+.card .det{color:var(--ink2);font-size:13px}
+.card .meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.card .imp{font-size:13px;background:var(--bg);border-radius:8px;padding:8px 10px}
+.card .imp b{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;display:block}
+.card .of{font-size:13px}
+.thumbs{display:flex;gap:6px}
+.thumbs img{height:84px;max-width:120px;object-fit:cover;border-radius:6px;cursor:zoom-in;border:1px solid var(--line)}
+.card .foot{display:flex;gap:10px;align-items:center;margin-top:auto;font-size:13px;flex-wrap:wrap}
+.card .foot .sp{flex:1}
+.more{font:inherit;background:none;border:0;color:var(--blue);cursor:pointer;padding:0}
+.body{display:none;white-space:pre-wrap;font-size:13px;color:var(--ink2);max-height:320px;overflow:auto;border-top:1px solid var(--line);padding-top:8px}
+.card.exp .body{display:block}
+.del{display:none;font:inherit;font-size:12px;background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;cursor:pointer}
+body.admin .del{display:inline-block}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:60;cursor:zoom-out}
+.lb img{max-width:92vw;max-height:92vh;border-radius:6px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.tbl td,.tbl th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+details.tv summary{cursor:pointer;color:var(--blue);font-size:12px;margin-top:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:70}
+.modal .box{background:#fff;border-radius:12px;padding:20px;width:min(460px,92vw)}
+.modal input{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;margin:8px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#14181F;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:80}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Барометр рынка</h1><div class="sub">Центр маркетинговых исследований · активность конкурентов</div></div>
+  <div class="sp"></div>
+  <span class="sub" id="upd"></span>
+  <a class="hbtn admin-only" href="select.html" id="toSelect" style="display:none">Отбор новостей</a>
+  <button class="hbtn" id="adminBtn">Вход для редактора</button>
+</header>
+<main>
+  <div class="filters" id="filters">
+    <div class="f"><label>Выпуск</label><select id="fIssue"></select></div>
+    <div class="f"><label>Дата с</label><input type="date" id="fFrom"></div>
+    <div class="f"><label>Дата по</label><input type="date" id="fTo"></div>
+    <div class="f"><label>Компания</label><div class="ms" id="msCompany"></div></div>
+    <div class="f"><label>Бренд</label><div class="ms" id="msBrand"></div></div>
+    <div class="f"><label>Продукт</label><div class="ms" id="msProduct"></div></div>
+    <div class="f"><label>Канал</label><div class="ms" id="msChannel"></div></div>
+    <div class="f grow"><label>Поиск</label><input type="search" id="fQ" placeholder="Слово в заголовке или тексте"></div>
+    <button class="reset" id="reset">Сбросить</button>
+  </div>
+  <div class="blocks" id="blocks"></div>
+  <div class="grid2">
+    <div class="panel"><h3>Новостей по компаниям</h3><div class="hint">С учётом фильтров. Нажмите на полосу, чтобы отфильтровать.</div><div id="chCompany"></div>
+      <details class="tv"><summary>Таблица</summary><table class="tbl" id="tCompany"></table></details></div>
+    <div class="panel"><h3>Новостей по выпускам</h3><div class="hint">С учётом фильтров. Нажмите на столбец, чтобы открыть выпуск.</div><div id="chWeek"></div>
+      <details class="tv"><summary>Таблица</summary><table class="tbl" id="tWeek"></table></details></div>
+  </div>
+  <div class="toolbar"><span class="count" id="count"></span><span class="sp"></span>
+    <button class="btn" id="expCsv">Выгрузить в Excel (CSV)</button></div>
+  <div id="list"></div>
+</main>
+<div class="tip" id="tip"></div>
+<div class="lb" id="lb"><img id="lbImg" alt=""></div>
+<div class="modal" id="modal"><div class="box">
+  <h3 style="margin-top:0">Вход для редактора</h3>
+  <div style="font-size:13px;color:#4A5260">Ключ доступа GitHub (fine-grained token с правом записи в репозитории дашборда). Хранится только в этом браузере.</div>
+  <input type="password" id="tok" placeholder="github_pat_…">
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="mCancel">Отмена</button><button class="btn" id="mOut">Выйти</button><button class="btn pri" id="mOk">Войти</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const CFG={owner:'hohlandrikk-source',pub:'barometr',priv:'barometr-admin',branch:'main'};
+const BLOCKS=['Финансовое поведение','Инфраструктура','Продукты и сервисы','Коммуникация'];
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let DATA=[],META={};
+const st={issue:'',from:'',to:'',block:'',q:'',company:new Set(),brand:new Set(),product:new Set(),channel:new Set()};
+const $=s=>document.querySelector(s);
+const esc=s=>(s??'').toString().replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=d=>d?d.split('-').reverse().join('.'):'';
+async function load(){
+  try{const r=await fetch('data/registry.json?'+Date.now());DATA=await r.json();}catch(e){DATA=window.REGISTRY||[]}
+  try{const r=await fetch('data/meta.json?'+Date.now());META=await r.json();}catch(e){}
+  DATA=DATA.filter(x=>x.status!=='deleted');
+  if(META.updated) $('#upd').textContent='Обновлено '+META.updated;
+  initFilters();readHash();render();
+}
+function issues(){return [...new Set(DATA.map(x=>x.issue))].sort().reverse()}
+function initFilters(){
+  const s=$('#fIssue');s.innerHTML='<option value="">Все выпуски</option>'+issues().map(i=>{const p=DATA.find(x=>x.issue===i).period;return `<option value="${i}">${fmt(i)}${p?' ('+esc(p)+')':''}</option>`}).join('');
+  s.onchange=()=>{st.issue=s.value;render()};
+  $('#fFrom').onchange=e=>{st.from=e.target.value;render()};
+  $('#fTo').onchange=e=>{st.to=e.target.value;render()};
+  $('#fQ').oninput=e=>{st.q=e.target.value.toLowerCase();render()};
+  $('#reset').onclick=()=>{Object.assign(st,{issue:'',from:'',to:'',block:'',q:''});['company','brand','product','channel'].forEach(k=>st[k].clear());s.value='';$('#fFrom').value='';$('#fTo').value='';$('#fQ').value='';render()};
+  document.addEventListener('click',e=>{document.querySelectorAll('.ms.open').forEach(m=>{if(!m.contains(e.target))m.classList.remove('open')})});
+}
+const getters={company:x=>x.companies||[],brand:x=>x.brands||[],product:x=>x.products||[],channel:x=>x.channels||[]};
+function pass(x,skip){
+  if(skip!=='issue'&&st.issue&&x.issue!==st.issue)return false;
+  const d=x.date||x.issue;
+  if(st.from&&d<st.from)return false; if(st.to&&d>st.to)return false;
+  if(skip!=='block'&&st.block&&x.block!==st.block)return false;
+  for(const k of ['company','brand','product','channel']) if(skip!==k&&st[k].size&&!getters[k](x).some(v=>st[k].has(v)))return false;
+  if(st.q){const t=(x.headline+' '+x.detail+' '+x.body+' '+(x.offer||'')+' '+(x.impact||'')).toLowerCase();if(!t.includes(st.q))return false}
+  return true;
+}
+function buildMS(id,key,label){
+  const box=$('#'+id);const base=DATA.filter(x=>pass(x,key));const cnt={};
+  base.forEach(x=>getters[key](x).forEach(v=>cnt[v]=(cnt[v]||0)+1));
+  const all=[...new Set(DATA.flatMap(getters[key]))].sort((a,b)=>(cnt[b]||0)-(cnt[a]||0)||a.localeCompare(b,'ru'));
+  const sel=st[key];const txt=sel.size?[...sel].join(', '):'Все';
+  const wasOpen=box.classList.contains('open');
+  box.innerHTML=`<button type="button" title="${esc(txt)}">${esc(txt)}</button><div class="dd">${all.map(v=>`<label><input type="checkbox" value="${esc(v)}" ${sel.has(v)?'checked':''}> ${esc(v)}<span class="cnt">${cnt[v]||0}</span></label>`).join('')}</div>`;
+  if(wasOpen)box.classList.add('open');
+  box.querySelector('button').onclick=e=>{e.stopPropagation();document.querySelectorAll('.ms.open').forEach(m=>m!==box&&m.classList.remove('open'));box.classList.toggle('open')};
+  box.querySelectorAll('input').forEach(i=>i.onchange=()=>{i.checked?sel.add(i.value):sel.delete(i.value);render()});
+}
+function render(){
+  ['company','brand','product','channel'].forEach(k=>buildMS('ms'+k[0].toUpperCase()+k.slice(1),k));
+  const bb=DATA.filter(x=>pass(x,'block'));
+  $('#blocks').innerHTML=[['','Все блоки',bb.length],...BLOCKS.map(b=>[b,b,bb.filter(x=>x.block===b).length])].map(([v,l,n])=>`<button class="chip ${st.block===v?'on':''}" data-b="${esc(v)}">${esc(l)}<b>${n}</b></button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{st.block=c.dataset.b;render()});
+  const rows=DATA.filter(x=>pass(x));
+  $('#count').textContent=`Найдено: ${rows.length}`;
+  charts(rows);list(rows);writeHash();
+}
+const tip=$('#tip');
+function showTip(e,h){tip.innerHTML=h;tip.style.display='block';tip.style.left=Math.min(e.clientX+12,innerWidth-200)+'px';tip.style.top=(e.clientY+12)+'px'}
+function hideTip(){tip.style.display='none'}
+function charts(rows){
+  // by company (horizontal bars)
+  const cnt={};rows.forEach(x=>(x.companies||[]).forEach(c=>cnt[c]=(cnt[c]||0)+1));
+  const arr=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const W=560,rh=24,lw=150,H=Math.max(arr.length*rh+10,40),mx=Math.max(1,...arr.map(a=>a[1]));
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Новостей по компаниям">`;
+  arr.forEach(([c,n],i)=>{const y=i*rh+4,w=Math.max(2,(W-lw-40)*n/mx),on=st.company.has(c);
+    s+=`<g class="bar" data-c="${esc(c)}" style="cursor:pointer"><rect x="0" y="${y-2}" width="${W}" height="${rh}" fill="transparent"/>
+    <text x="${lw-8}" y="${y+13}" text-anchor="end" font-size="12" fill="${on?'#006DF0':'#4A5260'}" ${on?'font-weight="700"':''}>${esc(c)}</text>
+    <rect x="${lw}" y="${y+3}" width="${w}" height="${rh-10}" rx="4" fill="${st.company.size&&!on?'#9CC3F7':'#006DF0'}"/>
+    <text x="${lw+w+6}" y="${y+13}" font-size="12" fill="#14181F">${n}</text></g>`});
+  s+='</svg>';$('#chCompany').innerHTML=arr.length?s:'<div class="empty">Нет данных</div>';
+  $('#tCompany').innerHTML='<tr><th>Компания</th><th>Новостей</th></tr>'+arr.map(([c,n])=>`<tr><td>${esc(c)}</td><td>${n}</td></tr>`).join('');
+  document.querySelectorAll('#chCompany .bar').forEach(g=>{g.onclick=()=>{const c=g.dataset.c;st.company.has(c)?st.company.delete(c):st.company.add(c);render()};
+    g.onmousemove=e=>showTip(e,`${esc(g.dataset.c)}: <b>${cnt[g.dataset.c]}</b>`);g.onmouseleave=hideTip});
+  // by issue (columns)
+  const iss=issues().slice().reverse();const ic={};rows.forEach(x=>ic[x.issue]=(ic[x.issue]||0)+1);
+  const W2=560,H2=200,pb=28,pt=16,bw=(W2-20)/iss.length,m2=Math.max(1,...iss.map(i=>ic[i]||0));
+  let s2=`<svg viewBox="0 0 ${W2} ${H2}" width="100%" role="img" aria-label="Новостей по выпускам"><line x1="10" x2="${W2-10}" y1="${H2-pb}" y2="${H2-pb}" stroke="#E3E7EE"/>`;
+  iss.forEach((i,k)=>{const n=ic[i]||0,h=(H2-pb-pt)*n/m2,x=10+k*bw,on=st.issue===i;
+    s2+=`<g class="col" data-i="${i}" style="cursor:pointer"><rect x="${x}" y="0" width="${bw}" height="${H2}" fill="transparent"/>
+    ${n?`<rect x="${x+bw*.2}" y="${H2-pb-h}" width="${bw*.6}" height="${h}" rx="4" fill="${st.issue&&!on?'#9CC3F7':'#006DF0'}"/>`:''}
+    <text x="${x+bw/2}" y="${H2-pb-h-4}" text-anchor="middle" font-size="11" fill="#14181F">${n||''}</text>
+    <text x="${x+bw/2}" y="${H2-10}" text-anchor="middle" font-size="11" fill="${on?'#006DF0':'#7A828F'}">${fmt(i).slice(0,5)}</text></g>`});
+  s2+='</svg>';$('#chWeek').innerHTML=s2;
+  $('#tWeek').innerHTML='<tr><th>Выпуск</th><th>Новостей</th></tr>'+iss.map(i=>`<tr><td>${fmt(i)}</td><td>${ic[i]||0}</td></tr>`).join('');
+  document.querySelectorAll('#chWeek .col').forEach(g=>{g.onclick=()=>{st.issue=st.issue===g.dataset.i?'':g.dataset.i;$('#fIssue').value=st.issue;render()};
+    g.onmousemove=e=>showTip(e,`Выпуск ${fmt(g.dataset.i)}: <b>${ic[g.dataset.i]||0}</b>`);g.onmouseleave=hideTip});
+}
+function card(x){
+  const ch=(x.channels||[]).join(', ');
+  const meta=[x.date?`📅 ${fmt(x.date)}`:'',x.start&&x.block==='Коммуникация'?`Старт: ${fmt(x.start)}`:'',ch?`Канал: ${esc(ch)}`:'',x.tg_channels_n?`ТГ-каналов: ${x.tg_channels_n}`:''].filter(Boolean).map(m=>`<span>${m}</span>`).join('');
+  return `<div class="card" id="c-${x.id}">
+    <div class="top">${(x.brands&&x.brands.length?x.brands:x.companies).map(c=>`<span class="tag co">${esc(c)}</span>`).join('')}${(x.products||[]).slice(0,3).map(p=>`<span class="tag">${esc(p)}</span>`).join('')}${x.tag?`<span class="tag mark">${esc(x.tag)}</span>`:''}</div>
+    <h4>${esc(x.headline)}</h4>${x.detail?`<div class="det">${esc(x.detail)}</div>`:''}
+    ${x.offer?`<div class="of"><b>Оффер:</b> ${esc(x.offer)}</div>`:''}
+    ${x.impact?`<div class="imp"><b>Влияние на рынок</b>${esc(x.impact)}</div>`:''}
+    ${x.images&&x.images.length?`<div class="thumbs">${x.images.map(i=>`<img loading="lazy" src="${esc(i)}" alt="">`).join('')}</div>`:''}
+    <div class="meta">${meta}</div>
+    <div class="body">${esc(x.body)}${x.tg_channels&&x.tg_channels.length?'\n\nКаналы: '+esc(x.tg_channels.join(', ')):''}</div>
+    <div class="foot">${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">Источник ↗</a>`:''}${x.body?'<button class="more">Полный текст</button>':''}<span class="sp"></span><button class="del" data-id="${x.id}">Удалить</button></div>
+  </div>`;
+}
+function list(rows){
+  if(!rows.length){$('#list').innerHTML='<div class="empty">Ничего не найдено — попробуйте ослабить фильтры</div>';return}
+  const by={};rows.forEach(x=>(by[x.issue]=by[x.issue]||[]).push(x));
+  $('#list').innerHTML=Object.keys(by).sort().reverse().map(i=>`<section class="issue"><h2>Выпуск ${fmt(i)} <span>${esc(by[i][0].period||'')} · ${by[i].length}</span></h2>`+
+    BLOCKS.filter(b=>by[i].some(x=>x.block===b)).map(b=>`<div class="bh">${b}</div><div class="cards">${by[i].filter(x=>x.block===b).map(card).join('')}</div>`).join('')+'</section>').join('');
+  document.querySelectorAll('.more').forEach(b=>b.onclick=()=>{const c=b.closest('.card');c.classList.toggle('exp');b.textContent=c.classList.contains('exp')?'Свернуть':'Полный текст'});
+  document.querySelectorAll('.thumbs img').forEach(im=>im.onclick=()=>{$('#lbImg').src=im.src;$('#lb').style.display='flex'});
+  document.querySelectorAll('.del').forEach(b=>b.onclick=()=>delItem(b.dataset.id));
+}
+$('#lb').onclick=()=>$('#lb').style.display='none';
+function writeHash(){const p=new URLSearchParams();for(const k of ['issue','from','to','block'])if(st[k])p.set(k,st[k]);for(const k of ['company','brand','product','channel'])if(st[k].size)p.set(k,[...st[k]].join('|'));const h=p.toString();history.replaceState(null,'',h?'#'+h:location.pathname+location.search)}
+function readHash(){const p=new URLSearchParams(location.hash.slice(1));for(const k of ['issue','from','to','block'])if(p.get(k))st[k]=p.get(k);for(const k of ['company','brand','product','channel'])if(p.get(k))p.get(k).split('|').forEach(v=>st[k].add(v));$('#fIssue').value=st.issue;$('#fFrom').value=st.from;$('#fTo').value=st.to}
+$('#expCsv').onclick=()=>{
+  const rows=DATA.filter(x=>pass(x));const cols=[['Выпуск','issue'],['Блок','block'],['Дата','date'],['Компании',x=>(x.companies||[]).join('; ')],['Бренды',x=>(x.brands||[]).join('; ')],['Продукты',x=>(x.products||[]).join('; ')],['Канал',x=>(x.channels||[]).join('; ')],['Заголовок','headline'],['Подробности','detail'],['Оффер','offer'],['Старт','start'],['ТГ-каналов','tg_channels_n'],['Влияние на рынок','impact'],['Ссылка','url']];
+  const v=(x,c)=>{const r=typeof c[1]==='function'?c[1](x):x[c[1]];return '"'+(r??'').toString().replace(/"/g,'""')+'"'};
+  const csv='﻿'+cols.map(c=>c[0]).join(';')+'\n'+rows.map(x=>cols.map(c=>v(x,c)).join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='barometr_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',3500)}
+// ---- редактор ----
+const GH={
+  tok:()=>ls.get('gh_token'),
+  async get(repo,path){const r=await fetch(`https://api.github.com/repos/${CFG.owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}?ref=${CFG.branch}`,{headers:{Authorization:'Bearer '+GH.tok(),Accept:'application/vnd.github+json'}});
+    if(r.status===404)return {sha:null,json:null};if(!r.ok)throw new Error('GitHub '+r.status);const j=await r.json();
+    const txt=new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),c=>c.charCodeAt(0)));return {sha:j.sha,json:JSON.parse(txt)}},
+  async put(repo,path,obj,sha,msg){const b=new TextEncoder().encode(JSON.stringify(obj,null,1));let s='';b.forEach(c=>s+=String.fromCharCode(c));
+    const r=await fetch(`https://api.github.com/repos/${CFG.owner}/${repo}/contents/${encodeURIComponent(path).replace(/%2F/g,'/')}`,{method:'PUT',headers:{Authorization:'Bearer '+GH.tok(),Accept:'application/vnd.github+json'},body:JSON.stringify({message:msg,content:btoa(s),sha:sha||undefined,branch:CFG.branch})});
+    if(!r.ok)throw new Error('GitHub '+r.status);return r.json()}
+};
+function setAdmin(){const on=!!GH.tok();document.body.classList.toggle('admin',on);$('#toSelect').style.display=on?'':'none';$('#adminBtn').textContent=on?'Режим редактора ✓':'Вход для редактора'}
+$('#adminBtn').onclick=()=>{$('#tok').value='';$('#modal').style.display='flex'};
+$('#mCancel').onclick=()=>$('#modal').style.display='none';
+$('#mOut').onclick=()=>{ls.del('gh_token');setAdmin();$('#modal').style.display='none'};
+$('#mOk').onclick=()=>{const t=$('#tok').value.trim();if(t){ls.set('gh_token',t)}$('#modal').style.display='none';setAdmin()};
+async function delItem(id){
+  const x=DATA.find(r=>r.id===id);if(!x||!confirm('Удалить новость из дашборда?\n«'+x.headline+'»\n\nОна попадёт в закрытый раздел «Удалённые» на странице отбора, откуда её можно вернуть.'))return;
+  try{
+    const pub=await GH.get(CFG.pub,'data/registry.json');const pr=await GH.get(CFG.priv,'deleted.json');
+    const del=pr.json||[];del.push({...pub.json.find(r=>r.id===id),deleted_at:new Date().toISOString()});
+    await GH.put(CFG.priv,'deleted.json',del,pr.sha,'Удалена новость '+id);
+    await GH.put(CFG.pub,'data/registry.json',pub.json.filter(r=>r.id!==id),pub.sha,'Удалена новость '+id);
+    DATA=DATA.filter(r=>r.id!==id);render();toast('Удалено. Страница у всех обновится в течение 1–2 минут.');
+  }catch(e){toast('Не удалось удалить: '+e.message+'. Проверьте ключ доступа.')}
+}
+setAdmin();load();
+</script>
+</body>
+</html>
