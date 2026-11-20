@@ -198,10 +198,11 @@ function list(rows){
   $('#list').innerHTML=keys.map(i=>{
     const xs=by[i];const sv=BLOCKS.slice(0,3).filter(b=>!st.block.size||st.block.has(b));
     const km=xs.filter(x=>x.block==='Коммуникация');
-    const cards=sv.map(b=>{const its=xs.filter(x=>x.block===b);return `<section class="card"><span class="chip ${BCLS[b]}">${b} · ${its.length}</span>${its.length?its.map(newsLine).join(''):'<div class="empty-b">Нет новостей по фильтрам</div>'}</section>`}).join('');
-    const showKm=!st.block.size||st.block.has('Коммуникация');
+    const filt=st.q||['company','brand','product','channel'].some(k=>st[k].size);
+    const cards=sv.map(b=>{const its=xs.filter(x=>x.block===b);if(filt&&!its.length)return '';return `<section class="card"><span class="chip ${BCLS[b]}">${b} · ${its.length}</span>${its.length?its.map(newsLine).join(''):'<div class="empty-b">Нет новостей по фильтрам</div>'}</section>`}).join('');
+    const showKm=(!st.block.size||st.block.has('Коммуникация'))&&!(filt&&!km.length);
     return `<section class="issue">${keys.length>1?`<h2>Выпуск ${fmt(i)} <span>${esc(xs[0].period||'')} · ${xs.length}</span></h2>`:''}
-      ${sv.length?`<div class="sv">${cards}</div>`:''}
+      ${cards.trim()?`<div class="sv">${cards}</div>`:''}
       ${showKm?`<section class="tw"><div class="hd"><span class="chip c-km">Коммуникация · ${km.length}</span><h3>${esc(adTitle(i,km))}</h3></div>
       ${km.length?`<div class="scroll"><table><thead><tr><th>Визуал</th><th>Компания · канал · старт</th><th>Продукт</th><th>Оффер / крючок</th><th>Влияние на рынок</th></tr></thead><tbody>${km.map(adRow).join('')}</tbody></table></div>`:'<div class="hd empty-b">Нет коммуникаций по фильтрам</div>'}</section>`:''}
     </section>`}).join('');
